@@ -1,5 +1,7 @@
 project(testutil)
 
+SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 INCLUDE_DIRECTORIES(inc)
 
 set(_src_root_path "${CMAKE_CURRENT_SOURCE_DIR}/src")
