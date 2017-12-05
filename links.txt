@@ -1,0 +1,4 @@
+https://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
+https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing-correctly-with-badbit-failbit-eofbit-and-perror/
+https://stackoverflow.com/questions/20645396/how-to-safely-read-a-line-from-an-stdistream
+https://tools.ietf.org/html/rfc4180#section-2

@@ -2,3 +2,4 @@
 build_and_run.sh
 build_only.sh
 update.sh
+.vscode/settings.json
