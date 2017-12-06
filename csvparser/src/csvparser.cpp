@@ -15,9 +15,38 @@ enum class FieldState { UNQUOTED, QUOTED, QUOTE_IN_QUOTE };
 
 bool CSVParser::readRecord(std::vector<std::string>& record)
 {
-    std::string line;
-    if (std::getline(mStream, line)) {
+    record.clear();
+    // auto state = std::ios_base::goodbit;
+    const std::istream::sentry streamSentry(mStream, true);
+    const bool isStreamOk = bool(streamSentry);
 
+    if (isStreamOk) {
+        try {
+            for (auto currentCharacter = GetCurrentCharacter(); ; currentCharacter = GetNextCharacter()) {
+                if (std::char_traits<char>::eq_int_type(currentCharacter, std::char_traits<char>::eof())) {
+                    mStream.setstate(std::ios_base::eofbit);
+                    break;
+                }
+            }
+        }
+        catch (...) {
+            mStream.setstate(std::ios_base::badbit);
+        }
     }
+    else {
+        // throw
+    }
+
+
     return false;
+}
+
+char CSVParser::GetCurrentCharacter()
+{
+    return mStream.rdbuf()->sgetc();
+}
+
+char CSVParser::GetNextCharacter()
+{
+    return mStream.rdbuf()->snextc();
 }
