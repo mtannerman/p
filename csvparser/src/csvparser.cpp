@@ -19,13 +19,67 @@ bool CSVParser::readRecord(std::vector<std::string>& record)
     // auto state = std::ios_base::goodbit;
     const std::istream::sentry streamSentry(mStream, true);
     const bool isStreamOk = bool(streamSentry);
-
     if (isStreamOk) {
         try {
+            std::string currentWord;
+            auto fieldState = FieldState::UNQUOTED;
             for (auto currentCharacter = GetCurrentCharacter(); ; currentCharacter = GetNextCharacter()) {
                 if (std::char_traits<char>::eq_int_type(currentCharacter, std::char_traits<char>::eof())) {
                     mStream.setstate(std::ios_base::eofbit);
-                    break;
+                    if (!currentWord.empty()) {
+                        record.push_back(currentWord);
+                        currentWord = "";
+                    }
+                    return true;
+                }
+                else if (currentCharacter == '\n') {
+                    if (fieldState == FieldState::QUOTE_IN_QUOTE) {
+                        currentWord += currentCharacter;
+                    }
+                    else {
+                        record.push_back(currentWord);
+                        currentWord = "";
+                        GetNextCharacter();
+                        return true;
+                    }
+                }
+                else if (currentCharacter == '\r') {
+                     if (fieldState == FieldState::QUOTE_IN_QUOTE) {
+                        currentWord += '\n';
+                    }
+                    else {
+                        record.push_back(currentWord);
+                        currentWord = "";
+                        const auto nextCharacter = GetNextCharacter();
+                        if (nextCharacter == '\n') {
+                            GetNextCharacter();
+                        }
+                        return true;
+                    }
+                }
+                else if (currentCharacter == mDelimiter) {
+                    if (fieldState == FieldState::QUOTED) {
+                        currentWord += currentCharacter;
+                    }
+                    else {
+                        record.push_back(currentWord);
+                        currentWord = "";
+                    }
+                }
+                else if (currentCharacter == mQuotation) {
+                    if (fieldState == FieldState::QUOTED) {
+                        fieldState = FieldState::QUOTE_IN_QUOTE;
+                    }
+                    else if (fieldState == FieldState::UNQUOTED) {
+                        fieldState = FieldState::QUOTED;
+                    }
+                    else {
+                        currentWord += currentCharacter;
+                        fieldState = FieldState::UNQUOTED;
+                    }
+                }
+                else {
+                    currentWord += currentCharacter;
                 }
             }
         }
@@ -33,10 +87,7 @@ bool CSVParser::readRecord(std::vector<std::string>& record)
             mStream.setstate(std::ios_base::badbit);
         }
     }
-    else {
-        // throw
-    }
-
+    // THROW
 
     return false;
 }
