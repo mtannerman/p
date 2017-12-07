@@ -2,6 +2,7 @@
 #include "../csvparser/inc/csvparser.h"
 #include "../testutil/inc/testutil.h"
 #include <fstream>
+#include <sstream>
 
 
 
@@ -16,32 +17,24 @@ void print_contents(const std::string& path)
 
 int main()
 {
-    const std::string inputFilePath = "../../input/5.csv";
+    const std::string inputFilePath = "input/5.csv";
+    // const std::string inputFilePath = "../../input/5.csv";
     print_contents(inputFilePath);
     std::cout << std::endl << std::endl;
     std::ifstream in(inputFilePath);
     CSVParser parser(in);
 	std::vector<std::string> record;
-	std::vector<std::vector<std::string>> logs;
-	logs.push_back(std::vector<std::string>());
-    while (parser.readRecord(record, logs.back())) {
-		//std::cout << '.' << std::endl;
-        for (const auto& word : record) {
-            std::cout << word << "||";
+    std::stringstream ss;
+    while (parser.readRecord(record, true)) {
+		std::cout << "new record: " << record.size() << std::endl;
+        for (auto it = record.begin(); it != std::prev(record.end()); ++it) {
+            ss << *it << "||";
         }
-		logs.push_back(std::vector<std::string>());
-		std::cout << std::endl;
+		ss << *std::prev(record.end()) << std::endl;
     }
 
-	std::cout << "\n\nLOGS:";
-	for (const auto& log : logs) {
-		for (const auto& e : log) {
-			std::cout << e << std::endl;
-		}
-		std::cout << "..................................";
-	}
-
+    std::cout << "\nOutput:\n" << ss.str() << std::endl;
     std::cout << "finito" << std::endl;
-	std::cin.get();
+	// std::cin.get();
     return 0;
 }
