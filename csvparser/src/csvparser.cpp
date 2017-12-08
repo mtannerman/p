@@ -58,12 +58,11 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
                 if (fieldState != FieldState::UNQUOTED) {
                     throw std::invalid_argument("Quote mismatch.");
                 }
-                return true;
+                return false;
             }
             else if (currentCharacter == '\n') {
                 if (fieldState == FieldState::QUOTE_IN_QUOTE) {
                     record.push_back(currentWord);
-                    // currentWord += currentCharacter;
 					LOG_IF("[\\n][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                     GetNextCharacter();
                     return true;

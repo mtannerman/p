@@ -1,10 +1,8 @@
 #include <iostream>
 #include "../csvparser/inc/csvparser.h"
-#include "../testutil/inc/testutil.h"
+#include "../test/inc/tests.h"
 #include <fstream>
 #include <sstream>
-
-
 
 void print_contents(const std::string& path) 
 {
@@ -17,6 +15,7 @@ void print_contents(const std::string& path)
 
 int main()
 {
+    RunTests();
     const std::string inputFilePath = "input/5.csv";
     // const std::string inputFilePath = "../../input/5.csv";
     print_contents(inputFilePath);
@@ -25,15 +24,15 @@ int main()
     CSVParser parser(in);
 	std::vector<std::string> record;
     std::stringstream ss;
-    while (parser.readRecord(record, true)) {
-		std::cout << "new record: " << record.size() << std::endl;
+    while (parser.readRecord(record, false)) {
+		// std::cout << "new record: " << record.size() << std::endl;
         for (auto it = record.begin(); it != std::prev(record.end()); ++it) {
             ss << *it << "||";
         }
-		ss << *std::prev(record.end()) << std::endl;
+		ss << *std::prev(record.end());
     }
 
-    std::cout << "\nOutput:\n" << ss.str() << std::endl;
+    std::cout << "\nOutput:\n" << "[" << ss.str() << "]" << std::endl;
     std::cout << "finito" << std::endl;
 	// std::cin.get();
     return 0;

@@ -5,20 +5,25 @@
 #include <functional>
 #include <iostream>
 
+#define ADD_TEST(testIdString, testLambdaBody) ::tu::TestManager::GetInstance().AddTest(testIdString, [](){ testLambdaBody })
+
 namespace tu
 {
+
+struct IdTestPair
+{
+    std::string id;
+    std::function<bool()> function;
+};
+
 class TestManager
 {
 public:
-    TestManager& GetInstance();
+    static TestManager& GetInstance();
     void AddTest(const std::string id, std::function<bool()> testFunction);
     void RunAll() const;
 private:
-    struct IdTestPair
-    {
-        std::string id;
-        std::function<bool()> function;
-    };
+    
     TestManager() = default;
     std::vector<IdTestPair> mTests;
 };
