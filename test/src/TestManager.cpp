@@ -4,7 +4,9 @@
 namespace testutil
 {
 
-bool CompareStringMatrices(const std::vector<std::vector<std::string>>& strMx1, const std::vector<std::vector<std::string>>& strMx2)
+bool CompareStringMatrices(
+	const std::vector<std::vector<std::string>>& strMx1, 
+	const std::vector<std::vector<std::string>>& strMx2)
 {
 	if (strMx1.size() == strMx2.size()) {
 		for (size_t i = 0; i < strMx1.size(); ++i) {

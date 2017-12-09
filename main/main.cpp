@@ -33,21 +33,24 @@ int main()
     //print_contents(inputFilePath);
     //std::cout << std::endl << std::endl;
     //std::ifstream in(inputFilePath);
-	const std::string inputstring = "\" Simple Hill \"\"\"\"6\"";
+	const std::string inputstring = "a,a,a,a\r\nb,b,b,b\nc,c,c,c\rd,d,d,d\r\n";
 	print_input_string(inputstring);
 	std::istringstream in(inputstring);
     CSVParser parser(in);
 	std::vector<std::string> record;
-    std::stringstream ss;
+	std::vector<std::stringstream> outputStreams;
     while (parser.readRecord(record, true)) {
+		outputStreams.push_back(std::stringstream());
 		// std::cout << "new record: " << record.size() << std::endl;
         for (auto it = record.begin(); it != std::prev(record.end()); ++it) {
-            ss << *it << "||";
+            outputStreams.back() << *it << "||";
         }
-		ss << *std::prev(record.end());
+		outputStreams.back() << *std::prev(record.end());
     }
 
-    std::cout << "\nOutput:\n" << "[" << ss.str() << "]" << std::endl;
+	for (size_t i = 0; i < outputStreams.size(); ++i) {
+		std::cout << "\nOutput line " << i << ":\n" << "[" << outputStreams[i].str() << "]" << std::endl;
+	}
     std::cout << "finito" << std::endl;
 	std::cin.get();
     return 0;

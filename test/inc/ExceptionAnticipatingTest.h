@@ -9,9 +9,9 @@
 struct ExceptionAnticipatingTest
 {
 	ExceptionAnticipatingTest(const std::string& input,
-		const std::vector<std::vector<std::string>>& desiredOutput);
+		const std::string& desiredErrorDescription);
 	testutil::TestResult Evaluate() const;
 
 	std::string mInput;
-	std::vector<std::vector<std::string>> mDesiredOutput;
+	std::string mDesiredErrorDescription;
 };
