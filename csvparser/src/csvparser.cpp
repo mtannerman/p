@@ -1,4 +1,4 @@
-#include "../../csvparser/inc/csvparser.h"
+#include "../../csvparser/inc/CSVParser.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -16,11 +16,11 @@ std::string FSSTR(const FieldState f)
 	switch (f)
 	{
 		case FieldState::UNQUOTED:
-			return "  UNQUOTED    ";
+			return "u";
 		case FieldState::QUOTED:
-			return "   QUOTED     ";
+			return "q";
 		case FieldState::QUOTE_IN_QUOTE:
-			return "QUOTE_IN_QUOTE";
+			return "Q";
 	}
 	return "INVALID";
 }
@@ -66,16 +66,16 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
             else if (currentCharacter == '\n') {
                 if (fieldState == FieldState::QUOTE_IN_QUOTE) {
                     record.push_back(currentWord);
-					LOG_IF("[\\n][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[\\n ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                     GetNextCharacter();
                     return true;
                 }
                 else if (fieldState == FieldState::QUOTED) {
                     currentWord += currentCharacter;
-					LOG_IF("[\\n][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[\\n ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
                 else {
-                    LOG_IF("[\\n][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+                    LOG_IF("[\\n ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
 					record.push_back(currentWord);
                     currentWord = "";
                     GetNextCharacter();
@@ -87,6 +87,7 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
 					 record.push_back(currentWord);
 					 currentWord = "";
 					 const auto nextCharacter = GetNextCharacter();
+					 LOG_IF("[\\r ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
 					 if (nextCharacter == '\n') {
 						 LOG_IF("next is n");
 						 GetNextCharacter();
@@ -95,7 +96,6 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
 						 mStream.putback(nextCharacter);
 					 }
 					 return true;
-					 LOG_IF("[\\r][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
                 else {
 					const auto nextCharacter = GetNextCharacter();
@@ -106,39 +106,39 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
 						currentWord += '\r';
 						mStream.putback(nextCharacter);
 					}
-					LOG_IF("[\\r][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[\\r ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
             }
             else if (currentCharacter == mDelimiter) {
                 if (fieldState == FieldState::QUOTED) {
                     currentWord += currentCharacter;
-					LOG_IF("[" << currentCharacter << "][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[ " << currentCharacter << " ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
                 else {
 					record.push_back(currentWord);
                     currentWord = "";
-					LOG_IF("[" << currentCharacter << "][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[ " << currentCharacter << " ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
 					fieldState = FieldState::UNQUOTED;
                 }
             }
             else if (currentCharacter == mQuotation) {
                 if (fieldState == FieldState::QUOTED) {
-					LOG_IF("[" << currentCharacter << "][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[ " << currentCharacter << " ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
 					fieldState = FieldState::QUOTE_IN_QUOTE;
                 }
                 else if (fieldState == FieldState::UNQUOTED) {
-					LOG_IF("[" << currentCharacter << "][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					LOG_IF("[ " << currentCharacter << " ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
 					fieldState = FieldState::QUOTED;
                 }
                 else {
                     currentWord += currentCharacter;
-					LOG_IF("[" << currentCharacter << "][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
-					fieldState = FieldState::QUOTE_IN_QUOTE;
+					LOG_IF("[ " << currentCharacter << " ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+					fieldState = FieldState::QUOTED;
                 }
             }
             else {
 				currentWord += currentCharacter;
-				LOG_IF("[" << currentCharacter << "][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
+				LOG_IF("[ " << currentCharacter << " ][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 if (fieldState == FieldState::QUOTE_IN_QUOTE) {
                     fieldState = FieldState::QUOTED;
                 }

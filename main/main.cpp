@@ -1,8 +1,7 @@
 #include <iostream>
-#include "../csvparser/inc/csvparser.h"
+#include "../csvparser/inc/CSVParser.h"
 #include "../test/inc/tests.h"
 #include <fstream>
-#include <sstream>
 
 void print_contents(const std::string& path) 
 {
@@ -13,6 +12,19 @@ void print_contents(const std::string& path)
     }
 }
 
+void print_input_string(const std::string& i)
+{
+	std::cout << "Input:\n";
+	for (auto c : i) {
+		switch (c) {
+			case '\r': std::cout << "\\r"; break;
+			case '\n': std::cout << "\\n"; break;
+			default:   std::cout << c; break;
+		}
+	}
+	std::cout << "\n\n";
+}
+
 int main()
 {
     RunTests();
@@ -21,7 +33,9 @@ int main()
     //print_contents(inputFilePath);
     //std::cout << std::endl << std::endl;
     //std::ifstream in(inputFilePath);
-	std::istringstream in("a,b,,d\naa\r\nb,\"a\rb\"");
+	const std::string inputstring = "\" Simple Hill \"\"\"\"6\"";
+	print_input_string(inputstring);
+	std::istringstream in(inputstring);
     CSVParser parser(in);
 	std::vector<std::string> record;
     std::stringstream ss;

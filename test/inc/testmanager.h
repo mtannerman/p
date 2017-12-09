@@ -5,10 +5,16 @@
 #include <functional>
 #include <iostream>
 
-#define ADD_TEST(testIdString, testLambdaBody) ::tu::TestManager::GetInstance().AddTest(testIdString, [](){ testLambdaBody })
+#define ADD_TEST(testIdString, testLambdaBody) ::testutil::TestManager::GetInstance().AddTest(testIdString, [](){ testLambdaBody })
 
-namespace tu
+
+
+namespace testutil
 {
+
+bool CompareStringMatrices(
+	const std::vector<std::vector<std::string>>& strMx1,
+	const std::vector<std::vector<std::string>>& strMx2);
 
 struct TestResult
 {

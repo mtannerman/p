@@ -1,8 +1,30 @@
-#include "../../test/inc/testmanager.h"
+#include "../../test/inc/TestManager.h"
 #include <algorithm>
 
-namespace tu
+namespace testutil
 {
+
+bool CompareStringMatrices(const std::vector<std::vector<std::string>>& strMx1, const std::vector<std::vector<std::string>>& strMx2)
+{
+	if (strMx1.size() == strMx2.size()) {
+		for (size_t i = 0; i < strMx1.size(); ++i) {
+			if (strMx1[i].size() == strMx2[i].size()) {
+				for (size_t j = 0; j < strMx1[i].size(); ++j) {
+					if (strMx1[i][j] != strMx2[i][j]) {
+						return false;
+					}
+				}
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	else {
+		return false;
+	}
+	return true;
+}
 
 TestManager& TestManager::GetInstance()
 {
