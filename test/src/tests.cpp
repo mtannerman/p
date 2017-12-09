@@ -29,20 +29,20 @@ bool CompareStringMatrices(
 }
 
 
-struct ParserTest
+struct SimpleParserTest
 {
-    ParserTest(const std::string& input, 
+    SimpleParserTest(const std::string& input, 
     const std::vector<std::vector<std::string>>& desiredOutput);
-    static ParserTest ConstructFromFileName(
+    static SimpleParserTest ConstructFromFileName(
         const std::string& fileName, 
         const std::vector<std::vector<std::string>>& desiredOutput);
-    bool Evaluate() const;
+    tu::TestResult Evaluate() const;
 
     std::string mInput;
     std::vector<std::vector<std::string>> mDesiredOutput;
 };
 
-ParserTest ParserTest::ConstructFromFileName(
+SimpleParserTest SimpleParserTest::ConstructFromFileName(
     const std::string& fileName, 
     const std::vector<std::vector<std::string>>& desiredOutput)
 {
@@ -50,37 +50,82 @@ ParserTest ParserTest::ConstructFromFileName(
     if (!is.is_open()) throw std::invalid_argument("Couldn't open test input file.");
 
     const std::string input(std::istreambuf_iterator<char>(is), {});
-    return ParserTest(input, desiredOutput);
+    return SimpleParserTest(input, desiredOutput);
 }
 
-ParserTest::ParserTest(const std::string& input, const std::vector<std::vector<std::string>>& desiredOutput)
+SimpleParserTest::SimpleParserTest(const std::string& input, const std::vector<std::vector<std::string>>& desiredOutput)
     : mInput(input)
     , mDesiredOutput(desiredOutput)
 { }
 
-bool ParserTest::Evaluate() const
+tu::TestResult SimpleParserTest::Evaluate() const
 {
     std::istringstream is(mInput);
     CSVParser parser(is);
     std::vector<std::vector<std::string>> output;
-    output.push_back(std::vector<std::string>());
-    while (parser.readRecord(output.back())) {
-
-    }
-
-    return CompareStringMatrices(mDesiredOutput, output);
+	std::vector<std::string> row;
+	try {
+		while (parser.readRecord(row)) {
+			output.push_back(row);
+		}
+		
+		return tu::TestResult(CompareStringMatrices(mDesiredOutput, output), "");
+	}
+	catch (const std::invalid_argument& e) {
+		return tu::TestResult(false, STR("invalid argument exception thrown. what():\n" << e.what()));
+	}
+	return tu::TestResult(false, "Unreachable code.");
 }
 
 
 void RunTests()
 {
-    ADD_TEST("oneliner1", {
-        return ParserTest::ConstructFromFileName(
-            "input/5.csv", 
-            std::vector<std::vector<std::string>>{
-                {"aaa","b\"\"bb","222, 333"}
-            }).Evaluate();
+	
+
+    ADD_TEST("quote in quote 1", {
+        return SimpleParserTest("\"aaa\",\"b\"\"bb\",\"222, 333\"\n",
+            {{{"aaa"},{"b\"bb"},{"222, 333"}}}).Evaluate();
     }); 
+
+	ADD_TEST("newline in quotes", {
+		return SimpleParserTest("\"aa\naa\"\n",
+			{{{ "aa\naa" }}}).Evaluate();
+	});
+
+	ADD_TEST("newline in quotes without ending newline", {
+		return SimpleParserTest("\"aa\naa\"",
+		{{{"aa\naa"}}}).Evaluate();
+	});
+
+	ADD_TEST("newline in quotes with CRLF", {
+		return SimpleParserTest("\"aa\naa\"\r\n",
+		{{{"aa\naa"}}}).Evaluate();
+	});
+
+	ADD_TEST("CRLF in quotes", {
+		return SimpleParserTest("\"aa\r\naa\"",
+		{{{"aa\naa"}}}).Evaluate();
+	});
+
+	ADD_TEST("CRLF in quotes with CR ending", {
+		return SimpleParserTest("\"aa\r\naa\"\r",
+		{{{"aa\naa"}}}).Evaluate();
+	});
+
+	ADD_TEST("empty input", {
+		return SimpleParserTest("",
+		std::vector<std::vector<std::string>>()).Evaluate();
+	});
+
+	ADD_TEST("empty field", {
+		return SimpleParserTest("a,b,,d",
+		{{"a","b","","d"}}).Evaluate();
+	});
+
+	ADD_TEST("mixed 1", {
+		return SimpleParserTest("a,b,,d\naa\r\nb,\"a\rb\"",
+		{{"a","b","","d"}, {"aa"}, {"b", "a\rb"}}).Evaluate();
+	});
 
     tu::TestManager::GetInstance().RunAll();   
 }

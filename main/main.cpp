@@ -16,15 +16,16 @@ void print_contents(const std::string& path)
 int main()
 {
     RunTests();
-    const std::string inputFilePath = "input/5.csv";
-    // const std::string inputFilePath = "../../input/5.csv";
-    print_contents(inputFilePath);
-    std::cout << std::endl << std::endl;
-    std::ifstream in(inputFilePath);
+    //const std::string inputFilePath = "input/5.csv";
+    //const std::string inputFilePath = "../../input/6.csv";
+    //print_contents(inputFilePath);
+    //std::cout << std::endl << std::endl;
+    //std::ifstream in(inputFilePath);
+	std::istringstream in("a,b,,d\naa\r\nb,\"a\rb\"");
     CSVParser parser(in);
 	std::vector<std::string> record;
     std::stringstream ss;
-    while (parser.readRecord(record, false)) {
+    while (parser.readRecord(record, true)) {
 		// std::cout << "new record: " << record.size() << std::endl;
         for (auto it = record.begin(); it != std::prev(record.end()); ++it) {
             ss << *it << "||";
@@ -34,6 +35,6 @@ int main()
 
     std::cout << "\nOutput:\n" << "[" << ss.str() << "]" << std::endl;
     std::cout << "finito" << std::endl;
-	// std::cin.get();
+	std::cin.get();
     return 0;
 }

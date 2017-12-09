@@ -10,22 +10,32 @@
 namespace tu
 {
 
-struct IdTestPair
+struct TestResult
+{
+	TestResult(const bool passed, const std::string description)
+		: mPassed(passed)
+		, mDescription(description)
+	{ }
+	const bool mPassed;
+	const std::string mDescription;
+};
+
+struct Test
 {
     std::string id;
-    std::function<bool()> function;
+    std::function<TestResult()> resultGetter;
 };
 
 class TestManager
 {
 public:
     static TestManager& GetInstance();
-    void AddTest(const std::string id, std::function<bool()> testFunction);
+    void AddTest(const std::string id, std::function<TestResult()> testFunction);
     void RunAll() const;
 private:
     
     TestManager() = default;
-    std::vector<IdTestPair> mTests;
+    std::vector<Test> mTests;
 };
 
 

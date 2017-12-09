@@ -31,6 +31,9 @@ std::string CWS(const std::string& w) {
         if (c == '\n') {
             ret += "\\n";
         }
+		else if (c == '\r') {
+			ret += "\\r";
+		}
         else {
             ret += c;
         }
@@ -42,23 +45,23 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
 {
     record.clear();
     // auto state = std::ios_base::goodbit;
-    const std::istream::sentry streamSentry(mStream, true);
-    const bool isStreamOk = bool(streamSentry);
+    //const std::istream::sentry streamSentry(mStream, true);
+    const bool isStreamOk = bool(std::istream::sentry(mStream, true));
     if (isStreamOk) {
         std::string currentWord;
         auto fieldState = FieldState::UNQUOTED;
         for (auto currentCharacter = GetCurrentCharacter(); ; currentCharacter = GetNextCharacter()) {
             if (std::char_traits<char>::eq_int_type(currentCharacter, std::char_traits<char>::eof())) {
-                mStream.setstate(std::ios_base::eofbit);
+                //mStream.setstate(std::ios_base::eofbit);
                 if (!currentWord.empty()) {
                     record.push_back(currentWord);
-                    currentWord = "";
 					LOG_IF("[eof][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
-                if (fieldState != FieldState::UNQUOTED) {
+                if (fieldState == FieldState::QUOTED) {
                     throw std::invalid_argument("Quote mismatch.");
                 }
-                return false;
+
+				return !record.empty();
             }
             else if (currentCharacter == '\n') {
                 if (fieldState == FieldState::QUOTE_IN_QUOTE) {
@@ -68,7 +71,7 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
                     return true;
                 }
                 else if (fieldState == FieldState::QUOTED) {
-                    currentWord =+ currentCharacter;
+                    currentWord += currentCharacter;
 					LOG_IF("[\\n][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
                 else {
@@ -80,20 +83,30 @@ bool CSVParser::readRecord(std::vector<std::string>& record, const bool doLoggin
                 }
             }
             else if (currentCharacter == '\r') {
-                 if (fieldState == FieldState::QUOTE_IN_QUOTE) {
-					 currentWord += '\n';
+                 if (fieldState == FieldState::QUOTE_IN_QUOTE || fieldState == FieldState::UNQUOTED) {
+					 record.push_back(currentWord);
+					 currentWord = "";
+					 const auto nextCharacter = GetNextCharacter();
+					 if (nextCharacter == '\n') {
+						 LOG_IF("next is n");
+						 GetNextCharacter();
+					 }
+					 else {
+						 mStream.putback(nextCharacter);
+					 }
+					 return true;
 					 LOG_IF("[\\r][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
                 }
                 else {
-                    record.push_back(currentWord);
-                    currentWord = "";
+					const auto nextCharacter = GetNextCharacter();
+					if (nextCharacter == '\n') {
+						currentWord += '\n';
+					}
+					else {
+						currentWord += '\r';
+						mStream.putback(nextCharacter);
+					}
 					LOG_IF("[\\r][" + FSSTR(fieldState) << "][" << CWS(currentWord) << "]");
-                    const auto nextCharacter = GetNextCharacter();
-                    if (nextCharacter == '\n') {
-						LOG_IF("next is n");
-                        GetNextCharacter();
-                    }
-                    return true;
                 }
             }
             else if (currentCharacter == mDelimiter) {
@@ -146,3 +159,4 @@ char CSVParser::GetNextCharacter()
 {
     return mStream.rdbuf()->snextc();
 }
+
