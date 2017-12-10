@@ -3,17 +3,21 @@
 
 ExceptionAnticipatingTest::ExceptionAnticipatingTest(
 	const std::string& input,
-	const std::string& desiredErrorDescription)
+	const std::string& desiredErrorDescription,
+	const char delimiter,
+	const char quotation)
 	: mInput(input)
 	, mDesiredErrorDescription(desiredErrorDescription)
+	, mDelimiter(delimiter)
+	, mQuotation(quotation)
 { }
 
 testutil::TestResult ExceptionAnticipatingTest::Evaluate() const
 {
 	std::istringstream is(mInput);
-	CSVParser parser(is);
-	std::vector<std::string> row;
 	try {
+		CSVParser parser(is, mDelimiter, mQuotation);
+		std::vector<std::string> row;
 		while (parser.readRecord(row));
 	}
 	catch (const std::invalid_argument& e) {

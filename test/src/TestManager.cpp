@@ -15,6 +15,8 @@ void TestManager::AddTest(const std::string id, std::function<TestResult()> test
     mTests.push_back(Test{id, testFunction});
 }
 
+// Utility function for pretty console printing of the test results
+// Returns the length of the longest test id string
 size_t CountLongestIdLength(const std::vector<Test>& tests)
 {
     size_t maxLength = tests.front().id.size();

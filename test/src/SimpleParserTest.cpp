@@ -26,30 +26,24 @@ bool CompareStringMatrices(
 	return true;
 }
 
-SimpleParserTest SimpleParserTest::ConstructFromFileName(
-	const std::string& fileName,
-	const std::vector<std::vector<std::string>>& desiredOutput)
-{
-	std::ifstream is(fileName);
-	if (!is.is_open()) throw std::invalid_argument("Couldn't open test input file.");
-
-	const std::string input(std::istreambuf_iterator<char>(is), {});
-	return SimpleParserTest(input, desiredOutput);
-}
-
-SimpleParserTest::SimpleParserTest(const std::string& input, const std::vector<std::vector<std::string>>& desiredOutput)
+SimpleCSVParserTest::SimpleCSVParserTest(const std::string& input, 
+	const std::vector<std::vector<std::string>>& desiredOutput,
+	const char delimiter,
+	const char quotation)
 	: mInput(input)
 	, mDesiredOutput(desiredOutput)
+	, mDelimiter(delimiter)
+	, mQuotation(quotation)
 { }
 
-testutil::TestResult SimpleParserTest::Evaluate(const bool log) const
+testutil::TestResult SimpleCSVParserTest::Evaluate() const
 {
 	std::istringstream is(mInput);
-	CSVParser parser(is);
+	CSVParser parser(is, mDelimiter, mQuotation);
 	std::vector<std::vector<std::string>> output;
 	std::vector<std::string> row;
 	try {
-		while (parser.readRecord(row, log)) {
+		while (parser.readRecord(row)) {
 			output.push_back(row);
 		}
 
