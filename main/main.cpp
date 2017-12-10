@@ -28,11 +28,7 @@ void print_input_string(const std::string& i)
 int main()
 {
     RunTests();
-    //const std::string inputFilePath = "input/5.csv";
-    //const std::string inputFilePath = "../../input/6.csv";
-    //print_contents(inputFilePath);
-    //std::cout << std::endl << std::endl;
-    //std::ifstream in(inputFilePath);
+	/*
 	const std::string inputstring = "a,a,a,a\r\nb,b,b,b\nc,c,c,c\rd,d,d,d\r\n";
 	print_input_string(inputstring);
 	std::istringstream in(inputstring);
@@ -52,6 +48,7 @@ int main()
 		std::cout << "\nOutput line " << i << ":\n" << "[" << outputStreams[i].str() << "]" << std::endl;
 	}
     std::cout << "finito" << std::endl;
+	*/
 	std::cin.get();
     return 0;
 }

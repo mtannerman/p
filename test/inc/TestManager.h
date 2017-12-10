@@ -12,10 +12,6 @@
 namespace testutil
 {
 
-bool CompareStringMatrices(
-	const std::vector<std::vector<std::string>>& strMx1,
-	const std::vector<std::vector<std::string>>& strMx2);
-
 struct TestResult
 {
 	TestResult(const bool passed, const std::string description)

@@ -4,6 +4,16 @@
 
 void RunTests()
 {
+	ADD_TEST("newline in quotes with CRLF", {
+		return SimpleParserTest("\"aa\naa\"\r\n",
+		{{{"aa\naa"}}}).Evaluate();
+	});
+
+	ADD_TEST("CRLF in quotes with CRLF", {
+		return SimpleParserTest("\"aa\r\naa\"\r\n",
+		{{{"aa\naa"}}}).Evaluate();
+	});
+
     ADD_TEST("quote in quote 1", {
         return SimpleParserTest("\"aaa\",\"b\"\"bb\",\"222, 333\"\n",
             {{{"aaa"},{"b\"bb"},{"222, 333"}}}).Evaluate();
@@ -16,11 +26,6 @@ void RunTests()
 
 	ADD_TEST("newline in quotes without ending newline", {
 		return SimpleParserTest("\"aa\naa\"",
-		{{{"aa\naa"}}}).Evaluate();
-	});
-
-	ADD_TEST("newline in quotes with CRLF", {
-		return SimpleParserTest("\"aa\naa\"\r\n",
 		{{{"aa\naa"}}}).Evaluate();
 	});
 
@@ -69,7 +74,12 @@ void RunTests()
 		{{"aaa","aa","a"},{"aa", "a"},{"a"}}).Evaluate();
 	});
 
-	ADD_TEST("quoted field with comma", {
+	ADD_TEST("quoted field with comma 1", {
+		return SimpleParserTest("\",\",asd",
+		{{",", "asd"}}).Evaluate();
+	});
+
+	ADD_TEST("quoted field with comma 2", {
 		return SimpleParserTest("\" Simple,,, Hill \"\"\"\"6\"",
 		{{" Simple,,, Hill \"\"6"}}).Evaluate();
 	});
@@ -80,6 +90,10 @@ void RunTests()
 
 	ADD_TEST("quote exception 2", {
 		return ExceptionAnticipatingTest("\"\"\"\"\"\n", "Quote mismatch.").Evaluate();
+	});
+
+	ADD_TEST("quote exception 3", {
+		return ExceptionAnticipatingTest("\",", "Quote mismatch.").Evaluate();
 	});
 
     testutil::TestManager::GetInstance().RunAll();   
